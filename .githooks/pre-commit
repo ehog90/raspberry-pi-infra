@@ -1,0 +1,25 @@
+#!/bin/bash
+# pre-commit hook: ensure all staged .sh files have the executable bit in git.
+
+staged_sh=$(git diff --cached --name-only --diff-filter=ACM | grep '\.sh$' || true)
+
+if [[ -z "$staged_sh" ]]; then
+    exit 0
+fi
+
+changed=0
+while IFS= read -r file; do
+    # Read the current index mode (e.g. 100644 or 100755)
+    mode=$(git ls-files --stage "$file" | awk '{print $1}')
+    if [[ "$mode" != "100755" ]]; then
+        git update-index --chmod=+x "$file"
+        echo "pre-commit: set +x on $file"
+        changed=1
+    fi
+done <<< "$staged_sh"
+
+if [[ $changed -eq 1 ]]; then
+    echo "pre-commit: re-staged file(s) with executable bit. Proceeding with commit."
+fi
+
+exit 0

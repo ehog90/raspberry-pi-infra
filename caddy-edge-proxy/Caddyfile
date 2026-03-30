@@ -1,0 +1,33 @@
+app.leafr {
+    # Hivatkozás a saját cert fájlokra (amiket majd a Docker volume-ból kap meg)
+    tls /etc/ssl/custom/app.leafr.crt /etc/ssl/custom/app.leafr.key
+
+    # Továbbítás a belső konténernek
+    reverse_proxy leafr-ui:420
+}
+
+leafr.regor {
+    tls /etc/ssl/custom/leafr.regor.crt /etc/ssl/custom/leafr.regor.key
+    reverse_proxy leafr-ui:420
+}
+
+emqx-rpi.regor {
+    tls /etc/ssl/custom/emqx-rpi.regor.crt /etc/ssl/custom/emqx-rpi.regor.key
+    reverse_proxy emqx_mqtt:18083
+}
+
+z2mqtt-rpi.regor {
+    tls /etc/ssl/custom/z2mqtt-rpi.regor.crt /etc/ssl/custom/z2mqtt-rpi.regor.key
+    reverse_proxy zigbee2mqtt:8080
+}
+
+munin-rpi5.regor {
+    tls /etc/ssl/custom/munin-rpi5.regor.crt /etc/ssl/custom/munin-rpi5.regor.key
+    root * /munin
+    file_server
+}
+
+docker-rpi5.regor {
+    tls /etc/ssl/custom/docker-rpi5.regor.crt /etc/ssl/custom/docker-rpi5.regor.key
+    reverse_proxy portainer:9000
+}

@@ -1,0 +1,34 @@
+services:
+  edge-proxy:
+    image: caddy:2-alpine
+    container_name: edge-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"           # Sima HTTP (a Caddy automatikusan átirányítja 443-ra)
+      - "443:443/tcp"         # Sima HTTPS (HTTP/1.1 és HTTP/2)
+      - "443:443/udp"     # AZ ÚJ CSODAFEGYVER: HTTP/3 (QUIC) portja!
+    volumes:
+      - /var/cache/munin/www:/munin
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - /home/regor/cert:/etc/ssl/custom:ro
+      - edge_caddy_data:/data
+      - edge_caddy_config:/config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - edge-net
+      - leafr-net
+      - mqtt5-network
+volumes:
+  edge_caddy_data:
+  edge_caddy_config:
+networks:
+  leafr-net:
+    external: true
+  mqtt5-network:      # Be kell emelni ide is külső hálózatként
+    external: true
+  edge-net:
+    external: true
